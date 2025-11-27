@@ -26,6 +26,9 @@ spec:
       tag: "main-a5a5d3a"
       pullPolicy: Always
     
+    imagePullSecrets:
+      - name: ghcr-secret
+    
     replicaCount: 2
     
     service:
