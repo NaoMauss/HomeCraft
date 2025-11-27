@@ -21,9 +21,36 @@ run: build ## Build and run the backend locally
 	@echo "Running backend..."
 	@./bin/$(BINARY_NAME)
 
-test: ## Run tests
+test: ## Run all tests
 	@echo "Running tests..."
 	@go test -v ./...
+
+test-short: ## Run tests without verbose output
+	@echo "Running tests (short)..."
+	@go test ./...
+
+test-coverage: ## Run tests with coverage report
+	@echo "Running tests with coverage..."
+	@go test -v -coverprofile=coverage.out ./...
+	@go tool cover -html=coverage.out -o coverage.html
+	@echo "Coverage report generated: coverage.html"
+
+test-coverage-func: ## Show coverage by function
+	@echo "Running tests with function coverage..."
+	@go test -coverprofile=coverage.out ./...
+	@go tool cover -func=coverage.out
+
+test-race: ## Run tests with race detector
+	@echo "Running tests with race detector..."
+	@go test -race -v ./...
+
+test-bench: ## Run benchmarks
+	@echo "Running benchmarks..."
+	@go test -bench=. -benchmem ./...
+
+test-unit: ## Run only unit tests (fast)
+	@echo "Running unit tests..."
+	@go test -v -short ./...
 
 clean: ## Clean build artifacts
 	@echo "Cleaning..."

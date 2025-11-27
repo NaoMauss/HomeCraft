@@ -17,7 +17,7 @@ import (
 // Client wraps the Kubernetes client
 type Client struct {
 	config     *rest.Config
-	clientset  *kubernetes.Clientset
+	clientset  kubernetes.Interface
 	restClient *rest.RESTClient
 	scheme     *runtime.Scheme
 }
@@ -131,7 +131,7 @@ func (c *Client) DeleteMinecraftServer(ctx context.Context, namespace, name stri
 }
 
 // GetClientset returns the underlying Kubernetes clientset
-func (c *Client) GetClientset() *kubernetes.Clientset {
+func (c *Client) GetClientset() kubernetes.Interface {
 	return c.clientset
 }
 
