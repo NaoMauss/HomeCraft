@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'backend/**'
+      - 'infra/**'
       - '.github/workflows/build-and-deploy.yaml'
   workflow_dispatch:
 
