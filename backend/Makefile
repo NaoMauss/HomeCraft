@@ -82,30 +82,30 @@ docker-push: docker-build ## Push Docker image to registry
 	@docker push $(DOCKER_IMAGE):$(DOCKER_TAG)
 	@echo "Docker image pushed: $(DOCKER_IMAGE):$(DOCKER_TAG)"
 
-deploy-crd: ## Deploy the MinecraftServer CRD to Kubernetes
-	@echo "Deploying CRD to Kubernetes..."
-	@kubectl apply -f config/crd/minecraftserver-crd.yaml
-	@echo "CRD deployed successfully"
-
-delete-crd: ## Delete the MinecraftServer CRD from Kubernetes
-	@echo "Deleting CRD from Kubernetes..."
-	@kubectl delete -f config/crd/minecraftserver-crd.yaml
-	@echo "CRD deleted successfully"
+check-namespace: ## Check if namespace is created
+	@echo "Checking namespace status..."
+	@kubectl get namespace minecraft-servers 2>/dev/null || echo "Namespace not found - ensure Flux has synced the infra/homecraft/base resources"
 
 check-crd: ## Check if CRD is installed
 	@echo "Checking CRD status..."
-	@kubectl get crd minecraftservers.homecraft.io || echo "CRD not found"
+	@kubectl get crd minecraftservers.homecraft.io 2>/dev/null || echo "CRD not found - ensure Flux has synced the infra/homecraft/base resources"
 
-local-dev: deploy-crd ## Setup for local development
-	@echo "Setting up local development environment..."
-	@echo "CRD deployed. You can now run 'make run' to start the API"
+check-flux: ## Check if Flux is syncing resources
+	@echo "Checking Flux system Kustomization status..."
+	@kubectl get kustomization flux-system -n flux-system 2>/dev/null || echo "Flux system Kustomization not found"
+	@echo "\nForcing reconciliation..."
+	@flux reconcile kustomization flux-system --with-source 2>/dev/null || echo "flux CLI not installed - use: kubectl reconcile kustomization flux-system -n flux-system"
 
 verify: ## Verify the installation
 	@echo "Verifying installation..."
 	@go version
 	@kubectl version --client
-	@echo "Checking if CRD is installed..."
-	@kubectl get crd minecraftservers.homecraft.io 2>/dev/null && echo "✓ CRD installed" || echo "✗ CRD not installed - run 'make deploy-crd'"
+	@echo "\nChecking if namespace is created..."
+	@kubectl get namespace minecraft-servers 2>/dev/null && echo "✓ Namespace created" || echo "✗ Namespace not created - check Flux sync status"
+	@echo "\nChecking if CRD is installed..."
+	@kubectl get crd minecraftservers.homecraft.io 2>/dev/null && echo "✓ CRD installed" || echo "✗ CRD not installed - check Flux sync status"
+	@echo "\nChecking Flux system..."
+	@kubectl get kustomization flux-system -n flux-system 2>/dev/null && echo "✓ Flux is running" || echo "✗ Flux not found - ensure Flux is installed"
 
 deps: ## Download dependencies
 	@echo "Downloading dependencies..."

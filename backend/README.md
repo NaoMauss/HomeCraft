@@ -45,18 +45,44 @@ backend/
 
 ## Quick Start
 
-### 1. Install the CRD
+### 1. Deploy Infrastructure with Flux
 
-Before running the API, you must register the `MinecraftServer` CRD with your cluster:
+This project uses **Flux GitOps** for deployment. The namespace and CRD are automatically deployed from the `infra/` directory.
+
+**Prerequisites:**
+- Flux installed and configured on your cluster
+- Repository connected to Flux
+
+**Deploy HomeCraft resources:**
 
 ```bash
-make deploy-crd
+# Commit the infrastructure changes
+git add infra/
+git commit -m "Add HomeCraft namespace and CRD"
+git push
+
+# Wait for Flux to sync (automatic) or force reconciliation
+flux reconcile kustomization flux-system --with-source
+
+# Verify Flux has applied the resources
+make verify
 ```
 
-Verify the CRD is installed:
+The Flux setup will automatically create:
+1. `minecraft-servers` namespace
+2. `MinecraftServer` CRD
+
+**Manual verification:**
 
 ```bash
+# Check namespace
+kubectl get namespace minecraft-servers
+
+# Check CRD
 kubectl get crd minecraftservers.homecraft.io
+
+# Check Flux Kustomization status
+kubectl get kustomization homecraft -n flux-system
 ```
 
 ### 2. Run Locally
@@ -103,9 +129,7 @@ Request body:
 {
   "name": "my-server",
   "eula": true,
-  "sftpUsers": [
-    "player1:password123:1000:1000:minecraft"
-  ],
+  "memory": "4Gi",
   "storageSize": "2Gi",
   "version": "1.20.1",
   "serverType": "VANILLA",
@@ -115,13 +139,17 @@ Request body:
 }
 ```
 
+**Note:** SFTP credentials are automatically generated and returned in the response.
+
 Response (201 Created):
 ```json
 {
   "name": "my-server",
-  "namespace": "default",
+  "namespace": "minecraft-servers",
   "eula": true,
-  "sftpUsers": ["player1:password123:1000:1000:minecraft"],
+  "sftpUsername": "mc-my-server",
+  "sftpPassword": "Xa9K2mP7nQ4vL8tY",
+  "memory": "4Gi",
   "storageSize": "2Gi",
   "version": "1.20.1",
   "serverType": "VANILLA",
@@ -144,7 +172,7 @@ Response:
   "items": [
     {
       "name": "my-server",
-      "namespace": "default",
+      "namespace": "minecraft-servers",
       "phase": "Running",
       "endpoint": "my-server.example.com:25565",
       ...
@@ -163,8 +191,9 @@ Response:
 ```json
 {
   "name": "my-server",
-  "namespace": "default",
+  "namespace": "minecraft-servers",
   "eula": true,
+  "memory": "4Gi",
   ...
 }
 ```
@@ -233,6 +262,45 @@ make local-dev
 make run
 ```
 
+## Infrastructure
+
+All Kubernetes resources are managed via **Flux GitOps** in the `infra/` directory:
+
+```
+infra/
+├── flux-system/              # Flux GitOps components
+├── homecraft/
+│   └── base/                 # HomeCraft base resources
+│       ├── namespace.yaml    # minecraft-servers namespace
+│       ├── minecraftserver-crd.yaml # MinecraftServer CRD
+│       └── kustomization.yaml
+├── repositories/             # Helm chart repositories (HelmRepository)
+│   └── kustomization.yaml
+├── releases/                 # Helm releases (HelmRelease)
+│   └── kustomization.yaml
+└── kustomization.yaml        # Root kustomization (includes all directories)
+```
+
+**Directory Structure:**
+- `homecraft/base/` - Raw Kubernetes manifests for HomeCraft
+- `repositories/` - Flux HelmRepository resources for Helm chart repos
+- `releases/` - Flux HelmRelease resources for Helm chart deployments
+
+**To deploy changes:**
+
+```bash
+# 1. Add/modify resources in appropriate directory
+vim infra/homecraft/base/namespace.yaml
+
+# 2. Commit and push
+git add infra/
+git commit -m "Update HomeCraft infrastructure"
+git push
+
+# 3. Flux automatically syncs (or force it)
+flux reconcile kustomization flux-system --with-source
+```
+
 ## Deployment
 
 ### Deploy to Kubernetes
@@ -242,7 +310,9 @@ make run
 make docker-build docker-push
 ```
 
-2. Create a Deployment manifest (example):
+2. Create API deployment in `infra/` (to be managed by Flux):
+
+**Example Deployment manifest:**
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -309,6 +379,48 @@ subjects:
 - kind: ServiceAccount
   name: homecraft-api
   namespace: default
+---
+# Additional permissions for managing the minecraft-servers namespace
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: homecraft-namespace-manager
+  namespace: minecraft-servers
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "persistentvolumeclaims"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: homecraft-namespace-manager
+  namespace: minecraft-servers
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: homecraft-namespace-manager
+subjects:
+- kind: ServiceAccount
+  name: homecraft-api
+  namespace: default
+```
+
+## Cluster Resources
+
+Check available cluster resources before creating servers:
+
+```
+GET /api/v1/cluster/resources
+```
+
+Response:
+```json
+{
+  "totalMemory": "16.0 GiB",
+  "allocatedMemory": "4.0 GiB",
+  "availableMemory": "12.0 GiB"
+}
 ```
 
 ## CRD Specification
@@ -317,15 +429,23 @@ The `MinecraftServer` CRD spec includes:
 
 ### Required Fields
 - `eula` (bool) - Accept Minecraft EULA
-- `sftpUsers` ([]string) - SFTP users in format: `user:pass:uid:gid:directory`
-- `storageSize` (string) - PVC size (e.g., "1Gi", "5Gi")
+- `memory` (string) - Memory allocation (e.g., "2Gi", "4Gi")
+  - API checks cluster capacity before creation
+  - Must be in format: `<number>Mi`, `<number>Gi`, or `<number>Ti`
 
 ### Optional Fields
+- `storageSize` (string) - PVC size (default: "1Gi")
 - `version` (string) - Minecraft version (default: "LATEST")
 - `serverType` (string) - Server type: VANILLA, PAPER, FORGE (default: "VANILLA")
 - `maxPlayers` (int) - Max players (default: 20)
 - `difficulty` (string) - peaceful/easy/normal/hard (default: "normal")
 - `gamemode` (string) - survival/creative/adventure/spectator (default: "survival")
+
+### Auto-Generated Fields
+- `sftpUsername` (string) - Automatically generated as `mc-<server-name>`
+- `sftpPassword` (string) - Automatically generated 16-character secure password
+
+**Important:** All MinecraftServer resources are created in the dedicated `minecraft-servers` namespace.
 
 ## Next Steps
 
@@ -342,13 +462,36 @@ See the `/operator` directory for the controller implementation.
 
 ## Troubleshooting
 
-### CRD Not Found
+### Namespace or CRD Not Found
 ```bash
-# Check if CRD exists
+# Check Flux sync status
+kubectl get kustomization flux-system -n flux-system
+
+# Check if resources exist
+kubectl get namespace minecraft-servers
 kubectl get crd minecraftservers.homecraft.io
 
-# Reinstall CRD
-make deploy-crd
+# Force Flux reconciliation (syncs everything in infra/)
+flux reconcile kustomization flux-system --with-source
+
+# Check Flux logs
+kubectl logs -n flux-system deployment/kustomize-controller
+
+# Verify kustomization builds locally
+kubectl kustomize infra/
+```
+
+### Flux Not Syncing
+```bash
+# Verify Flux is running
+kubectl get pods -n flux-system
+
+# Check GitRepository source
+kubectl get gitrepository flux-system -n flux-system
+
+# Force reconciliation
+flux reconcile source git flux-system
+flux reconcile kustomization flux-system
 ```
 
 ### Connection Refused

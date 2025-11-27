@@ -16,7 +16,8 @@ import (
 )
 
 const (
-	defaultNamespace = "default"
+	// MinecraftNamespace is the dedicated namespace for all Minecraft servers
+	MinecraftNamespace = "minecraft-servers"
 )
 
 // ServerHandler handles HTTP requests for Minecraft servers
@@ -121,7 +122,7 @@ func (h *ServerHandler) CreateServer(c *gin.Context) {
 	server := &v1alpha1.MinecraftServer{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      req.Name,
-			Namespace: defaultNamespace,
+			Namespace: MinecraftNamespace,
 		},
 		Spec: v1alpha1.MinecraftServerSpec{
 			EULA:         req.EULA,
@@ -137,7 +138,7 @@ func (h *ServerHandler) CreateServer(c *gin.Context) {
 		},
 	}
 
-	result, err := h.k8sClient.CreateMinecraftServer(c.Request.Context(), defaultNamespace, server)
+	result, err := h.k8sClient.CreateMinecraftServer(c.Request.Context(), MinecraftNamespace, server)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
 			Error:   "creation_failed",
@@ -151,7 +152,7 @@ func (h *ServerHandler) CreateServer(c *gin.Context) {
 
 // ListServers handles GET /servers
 func (h *ServerHandler) ListServers(c *gin.Context) {
-	list, err := h.k8sClient.ListMinecraftServers(c.Request.Context(), defaultNamespace)
+	list, err := h.k8sClient.ListMinecraftServers(c.Request.Context(), MinecraftNamespace)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
 			Error:   "list_failed",
@@ -182,7 +183,7 @@ func (h *ServerHandler) GetServer(c *gin.Context) {
 		return
 	}
 
-	server, err := h.k8sClient.GetMinecraftServer(c.Request.Context(), defaultNamespace, name)
+	server, err := h.k8sClient.GetMinecraftServer(c.Request.Context(), MinecraftNamespace, name)
 	if err != nil {
 		c.JSON(http.StatusNotFound, models.ErrorResponse{
 			Error:   "not_found",
@@ -205,7 +206,7 @@ func (h *ServerHandler) DeleteServer(c *gin.Context) {
 		return
 	}
 
-	err := h.k8sClient.DeleteMinecraftServer(c.Request.Context(), defaultNamespace, name)
+	err := h.k8sClient.DeleteMinecraftServer(c.Request.Context(), MinecraftNamespace, name)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
 			Error:   "deletion_failed",

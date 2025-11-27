@@ -1,0 +1,178 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: minecraftservers.homecraft.io
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.13.0
+spec:
+  group: homecraft.io
+  names:
+    kind: MinecraftServer
+    listKind: MinecraftServerList
+    plural: minecraftservers
+    shortNames:
+      - mcs
+    singular: minecraftserver
+  scope: Namespaced
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          description: MinecraftServer is the Schema for the minecraftservers API
+          type: object
+          properties:
+            apiVersion:
+              description: 'APIVersion defines the versioned schema of this representation of an object.'
+              type: string
+            kind:
+              description: 'Kind is a string value representing the REST resource this object represents.'
+              type: string
+            metadata:
+              type: object
+            spec:
+              description: MinecraftServerSpec defines the desired state of MinecraftServer
+              type: object
+              required:
+                - eula
+                - memory
+                - storageSize
+              properties:
+                eula:
+                  description: EULA indicates whether the user accepts the Minecraft EULA
+                  type: boolean
+                  default: true
+                sftpUsername:
+                  description: Auto-generated SFTP username for file access
+                  type: string
+                sftpPassword:
+                  description: Auto-generated SFTP password for file access
+                  type: string
+                memory:
+                  description: 'Amount of RAM allocated to the server (e.g., "2Gi", "4Gi")'
+                  type: string
+                  default: "2Gi"
+                  pattern: '^[0-9]+[MGT]i$'
+                storageSize:
+                  description: StorageSize is the size of the persistent volume claim
+                  type: string
+                  default: "1Gi"
+                  pattern: '^[0-9]+[MGT]i$'
+                version:
+                  description: 'Version is the Minecraft server version (e.g., "1.20.1", "LATEST")'
+                  type: string
+                  default: "LATEST"
+                serverType:
+                  description: 'ServerType is the Minecraft server type (VANILLA, PAPER, FORGE, etc.)'
+                  type: string
+                  default: "VANILLA"
+                maxPlayers:
+                  description: MaxPlayers is the maximum number of players
+                  type: integer
+                  default: 20
+                  minimum: 1
+                  maximum: 1000
+                difficulty:
+                  description: 'Difficulty is the game difficulty (peaceful, easy, normal, hard)'
+                  type: string
+                  default: "normal"
+                  enum:
+                    - peaceful
+                    - easy
+                    - normal
+                    - hard
+                gamemode:
+                  description: 'Gamemode is the default game mode (survival, creative, adventure, spectator)'
+                  type: string
+                  default: "survival"
+                  enum:
+                    - survival
+                    - creative
+                    - adventure
+                    - spectator
+            status:
+              description: MinecraftServerStatus defines the observed state of MinecraftServer
+              type: object
+              properties:
+                phase:
+                  description: 'Phase represents the current phase of the server (Pending, Running, Failed)'
+                  type: string
+                endpoint:
+                  description: Endpoint is the service endpoint to connect to the server
+                  type: string
+                sftpEndpoint:
+                  description: SFTPEndpoint is the SFTP endpoint for file access
+                  type: string
+                sftpUsername:
+                  description: Generated SFTP username (populated by controller)
+                  type: string
+                sftpPassword:
+                  description: Generated SFTP password (populated by controller)
+                  type: string
+                allocatedMemory:
+                  description: Actual memory allocated to the server
+                  type: string
+                lastUpdated:
+                  description: LastUpdated is the timestamp of the last status update
+                  type: string
+                  format: date-time
+                message:
+                  description: Message provides additional information about the current state
+                  type: string
+                conditions:
+                  description: Conditions represent the latest available observations of the server's state
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - lastTransitionTime
+                      - message
+                      - reason
+                      - status
+                      - type
+                    properties:
+                      lastTransitionTime:
+                        description: lastTransitionTime is the last time the condition transitioned
+                        type: string
+                        format: date-time
+                      message:
+                        description: message is a human readable message indicating details about the transition
+                        type: string
+                        maxLength: 32768
+                      observedGeneration:
+                        description: observedGeneration represents the .metadata.generation that the condition was set based upon
+                        type: integer
+                        format: int64
+                        minimum: 0
+                      reason:
+                        description: reason contains a programmatic identifier indicating the reason for the condition's last transition
+                        type: string
+                        maxLength: 1024
+                        minLength: 1
+                        pattern: '^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$'
+                      status:
+                        description: status of the condition, one of True, False, Unknown
+                        type: string
+                        enum:
+                          - "True"
+                          - "False"
+                          - Unknown
+                      type:
+                        description: type of condition in CamelCase or in foo.example.com/CamelCase
+                        type: string
+                        maxLength: 316
+                        pattern: '^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$'
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - name: Phase
+          type: string
+          jsonPath: .status.phase
+        - name: Endpoint
+          type: string
+          jsonPath: .status.endpoint
+        - name: Age
+          type: date
+          jsonPath: .metadata.creationTimestamp
