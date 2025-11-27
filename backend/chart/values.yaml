@@ -10,7 +10,7 @@ nameOverride: ""
 fullnameOverride: ""
 
 # Replicas
-replicaCount: 2
+replicaCount: 1
 
 # Service configuration
 service:
