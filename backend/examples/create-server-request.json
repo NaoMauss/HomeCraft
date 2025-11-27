@@ -1,0 +1,11 @@
+{
+  "name": "my-survival-server",
+  "eula": true,
+  "memory": "4Gi",
+  "storageSize": "5Gi",
+  "version": "1.20.1",
+  "serverType": "VANILLA",
+  "maxPlayers": 20,
+  "difficulty": "normal",
+  "gamemode": "survival"
+}
