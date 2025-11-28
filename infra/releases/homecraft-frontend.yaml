@@ -50,6 +50,11 @@ spec:
           paths:
             - path: /
               pathType: Prefix
+        # Public access via Playit.gg
+        - host: "san-trout.gl.at.ply.gg"
+          paths:
+            - path: /
+              pathType: Prefix
         # Public access via direct IP (nip.io provides DNS for IP)
         - host: "5.51.64.84.nip.io"
           paths:
