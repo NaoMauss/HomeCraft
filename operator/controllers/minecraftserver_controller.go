@@ -117,7 +117,7 @@ func (r *MinecraftServerReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 }
 
 func (r *MinecraftServerReconciler) createOrUpdateResource(ctx context.Context, obj client.Object, owner *homecraftv1alpha1.MinecraftServer) error {
-	// Set owner reference
+	// Set owner reference for garbage collection
 	if err := controllerutil.SetControllerReference(owner, obj, r.Scheme); err != nil {
 		return err
 	}
