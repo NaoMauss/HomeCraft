@@ -60,8 +60,8 @@ export function useMinecraftApi() {
     loading.value = true
     error.value = null
     try {
-      const response = await ofetch<MinecraftServer[]>(`${API_BASE_URL}/api/v1/servers`)
-      return response
+      const response = await ofetch<{ count: number; items: MinecraftServer[] }>(`${API_BASE_URL}/api/v1/servers`)
+      return response.items
     } catch (e: any) {
       error.value = e.data?.message || e.message || 'Failed to fetch servers'
       throw e
