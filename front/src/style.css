@@ -1,0 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Inter:wght@400;600;800&display=swap');
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+@layer base {
+  body {
+    @apply bg-bg text-gray-900 font-sans;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-mono font-neo;
+  }
+}
