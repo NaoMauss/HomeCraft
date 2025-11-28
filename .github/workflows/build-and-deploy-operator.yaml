@@ -72,14 +72,14 @@ jobs:
 
       - name: Update Flux HelmRelease
         run: |
-          # Extract the SHA tag
-          SHA_TAG="${{ github.ref_name }}-${{ github.sha }}"
-          SHA_TAG="${SHA_TAG:0:20}"
+          # Extract short SHA (7 characters to match docker metadata action)
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          IMAGE_TAG="main-${SHORT_SHA}"
           
           # Update the HelmRelease file
-          sed -i "s|tag:.*|tag: \"${SHA_TAG}\"|" infra/releases/homecraft-operator.yaml
+          sed -i "s|tag:.*|tag: \"${IMAGE_TAG}\"|" infra/releases/homecraft-operator.yaml
           
-          echo "Updated image tag to: ${SHA_TAG}"
+          echo "Updated image tag to: ${IMAGE_TAG}"
 
       - name: Commit and push changes
         run: |
