@@ -1,7 +1,9 @@
 import { ref } from 'vue'
 import { ofetch } from 'ofetch'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
+// Use relative URL so it works from any domain (local, public IP, or Playit.gg)
+// This will make requests to the same host/domain that served the frontend
+const API_BASE_URL = import.meta.env.VITE_API_URL || ''
 
 export interface MinecraftServer {
   name: string
