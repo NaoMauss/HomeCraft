@@ -59,7 +59,14 @@ spec:
               pathType: Prefix
             - path: /health
               pathType: Prefix
-        # Public access via nip.io (provides DNS for IP addresses)
+        # Public access via direct IP (nip.io provides DNS for IP)
+        - host: "5.51.64.84.nip.io"
+          paths:
+            - path: /api
+              pathType: Prefix
+            - path: /health
+              pathType: Prefix
+        # Local network access
         - host: "192.168.1.111.nip.io"
           paths:
             - path: /api
