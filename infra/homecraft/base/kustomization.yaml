@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - minecraftserver-crd.yaml
+  - ghcr-secret.yaml
