@@ -23,7 +23,7 @@ spec:
   values:
     image:
       repository: ghcr.io/naomauss/homecraft-backend
-      tag: "main-ff2c081"
+      tag: "main-b63a184"
       pullPolicy: Always
     
     imagePullSecrets:
