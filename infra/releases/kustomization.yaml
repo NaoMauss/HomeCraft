@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - homecraft-backend.yaml
   - homecraft-frontend.yaml
+  - homecraft-operator.yaml
 # This directory is for Flux HelmRelease resources
 # Example:
 # - cert-manager.yaml

@@ -1,0 +1,55 @@
+# Default values for homecraft-operator
+replicaCount: 1
+
+image:
+  repository: ghcr.io/naomauss/homecraft-operator
+  pullPolicy: Always
+  tag: "latest"
+
+imagePullSecrets:
+  - name: ghcr-secret
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: "homecraft-operator"
+
+rbac:
+  create: true
+
+podAnnotations: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Operator configuration
+operator:
+  leaderElection: true
+  metricsBindAddress: ":8080"
+  healthProbeBindAddress: ":8081"
+
+# Namespace where MinecraftServers will be deployed
+minecraftNamespace: minecraft-servers

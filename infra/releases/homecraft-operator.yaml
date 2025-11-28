@@ -1,0 +1,54 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: homecraft-operator
+  namespace: flux-system
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: ./operator/chart
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+        namespace: flux-system
+  targetNamespace: homecraft-system
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    image:
+      repository: ghcr.io/naomauss/homecraft-operator
+      tag: "latest"
+      pullPolicy: Always
+    
+    imagePullSecrets:
+      - name: ghcr-secret
+    
+    replicaCount: 1
+    
+    serviceAccount:
+      create: true
+      name: homecraft-operator
+    
+    rbac:
+      create: true
+    
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+    
+    operator:
+      leaderElection: true
+      metricsBindAddress: ":8080"
+      healthProbeBindAddress: ":8081"
+    
+    minecraftNamespace: minecraft-servers
