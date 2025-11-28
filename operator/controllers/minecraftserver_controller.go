@@ -139,7 +139,6 @@ func (r *MinecraftServerReconciler) createOrUpdateResource(ctx context.Context, 
 		return err
 	}
 
-	// Resource exists, update if needed
 	r.Log.Info("Resource already exists", "kind", obj.GetObjectKind().GroupVersionKind().Kind, "name", obj.GetName())
 	return nil
 }
