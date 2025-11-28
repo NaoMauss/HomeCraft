@@ -199,12 +199,15 @@ func (r *MinecraftServerReconciler) statefulSetForMinecraftServer(m *homecraftv1
 		"app.kubernetes.io/managed-by": "homecraft-operator",
 	}
 
+	// Convert Kubernetes memory format (2Gi) to Java/Minecraft format (2G)
+	minecraftMemory := convertMemoryFormat(m.Spec.Memory)
+
 	// Minecraft container environment variables
 	minecraftEnv := []corev1.EnvVar{
 		{Name: "EULA", Value: fmt.Sprintf("%t", m.Spec.EULA)},
 		{Name: "VERSION", Value: version},
 		{Name: "TYPE", Value: serverType},
-		{Name: "MEMORY", Value: m.Spec.Memory},
+		{Name: "MEMORY", Value: minecraftMemory},
 	}
 
 	if m.Spec.MaxPlayers > 0 {
@@ -428,6 +431,16 @@ func (r *MinecraftServerReconciler) updateStatus(ctx context.Context, m *homecra
 	m.Status.LastUpdated = metav1.Now()
 
 	return r.Status().Update(ctx, m)
+}
+
+// convertMemoryFormat converts Kubernetes memory format (e.g., "2Gi", "512Mi")
+// to Java/Minecraft format (e.g., "2G", "512M")
+func convertMemoryFormat(kubeMemory string) string {
+	// Remove the trailing "i" if present (Gi -> G, Mi -> M, etc.)
+	if len(kubeMemory) > 0 && kubeMemory[len(kubeMemory)-1] == 'i' {
+		return kubeMemory[:len(kubeMemory)-1]
+	}
+	return kubeMemory
 }
 
 // SetupWithManager sets up the controller with the Manager.
