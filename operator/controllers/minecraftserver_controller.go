@@ -321,7 +321,7 @@ func (r *MinecraftServerReconciler) serviceForMinecraft(m *homecraftv1alpha1.Min
 			Labels:    labels,
 		},
 		Spec: corev1.ServiceSpec{
-			Type:     corev1.ServiceTypeNodePort,
+			Type:     corev1.ServiceTypeLoadBalancer,
 			Selector: labels,
 			Ports: []corev1.ServicePort{
 				{
@@ -348,7 +348,7 @@ func (r *MinecraftServerReconciler) serviceForSFTP(m *homecraftv1alpha1.Minecraf
 			Labels:    labels,
 		},
 		Spec: corev1.ServiceSpec{
-			Type:     corev1.ServiceTypeNodePort,
+			Type:     corev1.ServiceTypeLoadBalancer,
 			Selector: labels,
 			Ports: []corev1.ServicePort{
 				{
@@ -397,16 +397,24 @@ func (r *MinecraftServerReconciler) updateStatus(ctx context.Context, m *homecra
 		message = "Server is starting"
 	}
 
-	// Build endpoints
+	// Build endpoints using LoadBalancer IPs
 	minecraftEndpoint := ""
 	sftpEndpoint := ""
 
-	if len(actualMinecraftSvc.Spec.Ports) > 0 && actualMinecraftSvc.Spec.Ports[0].NodePort > 0 {
-		minecraftEndpoint = fmt.Sprintf("<node-ip>:%d", actualMinecraftSvc.Spec.Ports[0].NodePort)
+	// Get LoadBalancer IP for Minecraft service
+	if len(actualMinecraftSvc.Status.LoadBalancer.Ingress) > 0 {
+		lbIP := actualMinecraftSvc.Status.LoadBalancer.Ingress[0].IP
+		if lbIP != "" && len(actualMinecraftSvc.Spec.Ports) > 0 {
+			minecraftEndpoint = fmt.Sprintf("%s:%d", lbIP, actualMinecraftSvc.Spec.Ports[0].Port)
+		}
 	}
 
-	if len(actualSftpSvc.Spec.Ports) > 0 && actualSftpSvc.Spec.Ports[0].NodePort > 0 {
-		sftpEndpoint = fmt.Sprintf("<node-ip>:%d", actualSftpSvc.Spec.Ports[0].NodePort)
+	// Get LoadBalancer IP for SFTP service
+	if len(actualSftpSvc.Status.LoadBalancer.Ingress) > 0 {
+		lbIP := actualSftpSvc.Status.LoadBalancer.Ingress[0].IP
+		if lbIP != "" && len(actualSftpSvc.Spec.Ports) > 0 {
+			sftpEndpoint = fmt.Sprintf("%s:%d", lbIP, actualSftpSvc.Spec.Ports[0].Port)
+		}
 	}
 
 	// Update status

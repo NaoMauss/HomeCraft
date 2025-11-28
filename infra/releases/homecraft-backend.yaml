@@ -46,3 +46,15 @@ spec:
     env:
       GIN_MODE: "release"
       PORT: "8080"
+    
+    ingress:
+      enabled: true
+      className: "traefik"
+      annotations:
+        traefik.ingress.kubernetes.io/router.entrypoints: web
+      hosts:
+        - host: homecraft.local
+          paths:
+            - path: /api
+              pathType: Prefix
+      tls: []
