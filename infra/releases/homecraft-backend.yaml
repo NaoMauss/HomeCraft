@@ -59,6 +59,13 @@ spec:
               pathType: Prefix
             - path: /health
               pathType: Prefix
+        # Public access via Cloudflare Tunnel
+        - host: "homecraft.trycloudflare.com"
+          paths:
+            - path: /api
+              pathType: Prefix
+            - path: /health
+              pathType: Prefix
         # Public access via direct IP (nip.io provides DNS for IP)
         - host: "5.51.64.84.nip.io"
           paths:
