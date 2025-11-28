@@ -23,7 +23,7 @@ spec:
   values:
     image:
       repository: ghcr.io/naomauss/homecraft-operator
-      tag: "main-3dd4b5a"
+      tag: "main-688445f"
       pullPolicy: Always
     
     imagePullSecrets:
