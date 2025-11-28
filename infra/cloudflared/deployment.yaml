@@ -39,15 +39,15 @@ spec:
             memory: 64Mi
         livenessProbe:
           httpGet:
-            path: /ready
-            port: 2000
-          failureThreshold: 1
+            path: /metrics
+            port: 20241
+          failureThreshold: 3
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
-            path: /ready
-            port: 2000
+            path: /metrics
+            port: 20241
           failureThreshold: 1
           initialDelaySeconds: 10
           periodSeconds: 5
