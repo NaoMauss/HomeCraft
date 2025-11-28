@@ -86,5 +86,6 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add infra/releases/homecraft-operator.yaml
-          git commit -m "chore: update operator image to ${{ github.sha:0:7 }}" || exit 0
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          git commit -m "chore: update operator image to ${SHORT_SHA}" || exit 0
           git push
