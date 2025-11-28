@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: playit-agent
+  namespace: default
+  labels:
+    app: playit-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: playit-agent
+  template:
+    metadata:
+      labels:
+        app: playit-agent
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - name: playit-agent
+        image: ghcr.io/playit-cloud/playit-agent:0.16
+        env:
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: playit-secret
+              key: secret-key
+        resources:
+          limits:
+            cpu: 200m
+            memory: 128Mi
+          requests:
+            cpu: 50m
+            memory: 64Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 65534
+          capabilities:
+            drop:
+            - ALL
