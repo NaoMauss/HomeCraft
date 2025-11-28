@@ -39,15 +39,14 @@ spec:
       enabled: true
       className: "traefik"
       annotations:
-        # Allow access via IP address without hostname matching
         traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
       hosts:
         - host: homecraft.local
           paths:
             - path: /
               pathType: Prefix
-        # Allow access via IP address (192.168.1.111)
-        - host: "192.168.1.111"
+        # Public access via nip.io (provides DNS for IP addresses)
+        - host: "192.168.1.111.nip.io"
           paths:
             - path: /
               pathType: Prefix

@@ -57,8 +57,8 @@ spec:
           paths:
             - path: /api
               pathType: Prefix
-        # Allow access via IP address (192.168.1.111)
-        - host: "192.168.1.111"
+        # Public access via nip.io (provides DNS for IP addresses)
+        - host: "192.168.1.111.nip.io"
           paths:
             - path: /api
               pathType: Prefix
