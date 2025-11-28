@@ -51,9 +51,14 @@ spec:
       enabled: true
       className: "traefik"
       annotations:
-        traefik.ingress.kubernetes.io/router.entrypoints: web
+        traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
       hosts:
         - host: homecraft.local
+          paths:
+            - path: /api
+              pathType: Prefix
+        # Allow access via IP address (192.168.1.111)
+        - host: "192.168.1.111"
           paths:
             - path: /api
               pathType: Prefix
