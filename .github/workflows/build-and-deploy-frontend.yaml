@@ -88,6 +88,11 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
+          # Pull latest changes to avoid conflicts with other workflows
+          git pull --rebase origin main || true
+          
           git add infra/releases/homecraft-frontend.yaml
           git commit -m "chore: update frontend image to ${GITHUB_SHA:0:7}" || exit 0
-          git push
+          
+          # Retry push with rebase if it fails
+          git push || (git pull --rebase origin main && git push)

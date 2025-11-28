@@ -85,7 +85,13 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Pull latest changes to avoid conflicts with other workflows
+          git pull --rebase origin main || true
+          
           git add infra/releases/homecraft-operator.yaml
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           git commit -m "chore: update operator image to ${SHORT_SHA}" || exit 0
-          git push
+          
+          # Retry push with rebase if it fails
+          git push || (git pull --rebase origin main && git push)
