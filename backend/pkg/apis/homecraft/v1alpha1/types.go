@@ -54,6 +54,10 @@ type MinecraftServerSpec struct {
 	// +kubebuilder:default="survival"
 	// +optional
 	Gamemode string `json:"gamemode,omitempty"`
+
+	// PublicEndpoint is the public endpoint for external access (e.g., Playit tunnel address)
+	// +optional
+	PublicEndpoint string `json:"publicEndpoint,omitempty"`
 }
 
 // MinecraftServerStatus defines the observed state of MinecraftServer
@@ -61,8 +65,11 @@ type MinecraftServerStatus struct {
 	// Phase represents the current phase of the server (Pending, Running, Failed)
 	Phase string `json:"phase,omitempty"`
 
-	// Endpoint is the service endpoint to connect to the server
+	// Endpoint is the service endpoint to connect to the server (local/private)
 	Endpoint string `json:"endpoint,omitempty"`
+
+	// PublicEndpoint is the public endpoint for external access (e.g., via Playit tunnel)
+	PublicEndpoint string `json:"publicEndpoint,omitempty"`
 
 	// SFTPEndpoint is the SFTP endpoint for file access
 	SFTPEndpoint string `json:"sftpEndpoint,omitempty"`

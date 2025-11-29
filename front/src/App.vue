@@ -185,15 +185,33 @@ onMounted(() => {
               <p><span class="font-bold">Memory:</span> {{ server.memory }}</p>
               <p><span class="font-bold">Max Players:</span> {{ server.maxPlayers }}</p>
               
-              <div v-if="server.endpoint" class="pt-2 border-t-2 border-gray-300">
-                <p class="font-bold text-green-600 mb-1">Connection Info:</p>
-                <div class="flex items-center gap-2">
-                  <code class="bg-black text-green-400 px-2 py-1 text-xs flex-1 font-mono">{{ server.endpoint }}</code>
-                  <button 
-                    @click="copyToClipboard(server.endpoint!)"
-                    class="border-2 border-black bg-mc-gold p-1 hover:bg-mc-gold/80 transition-colors">
-                    <LucideCopy class="h-4 w-4" />
-                  </button>
+              <div v-if="server.endpoint || server.publicEndpoint" class="pt-2 border-t-2 border-gray-300 space-y-2">
+                <p class="font-bold text-green-600">Connection Info:</p>
+                
+                <!-- Public Endpoint (Primary) -->
+                <div v-if="server.publicEndpoint" class="space-y-1">
+                  <p class="text-xs font-bold text-blue-600">Public Access (Internet):</p>
+                  <div class="flex items-center gap-2">
+                    <code class="bg-black text-green-400 px-2 py-1 text-xs flex-1 font-mono">{{ server.publicEndpoint }}</code>
+                    <button 
+                      @click="copyToClipboard(server.publicEndpoint!)"
+                      class="border-2 border-black bg-mc-gold p-1 hover:bg-mc-gold/80 transition-colors">
+                      <LucideCopy class="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+                
+                <!-- Local Endpoint (Secondary) -->
+                <div v-if="server.endpoint" class="space-y-1">
+                  <p class="text-xs font-bold text-gray-600">Local Network:</p>
+                  <div class="flex items-center gap-2">
+                    <code class="bg-black text-gray-400 px-2 py-1 text-xs flex-1 font-mono">{{ server.endpoint }}</code>
+                    <button 
+                      @click="copyToClipboard(server.endpoint!)"
+                      class="border-2 border-black bg-gray-300 p-1 hover:bg-gray-400 transition-colors">
+                      <LucideCopy class="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

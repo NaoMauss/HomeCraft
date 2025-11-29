@@ -424,6 +424,7 @@ func (r *MinecraftServerReconciler) updateStatus(ctx context.Context, m *homecra
 	m.Status.Phase = phase
 	m.Status.Message = message
 	m.Status.Endpoint = minecraftEndpoint
+	m.Status.PublicEndpoint = m.Spec.PublicEndpoint
 	m.Status.SFTPEndpoint = sftpEndpoint
 	m.Status.SFTPUsername = m.Spec.SFTPUsername
 	m.Status.SFTPPassword = m.Spec.SFTPPassword

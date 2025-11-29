@@ -18,6 +18,7 @@ export interface MinecraftServer {
   gamemode: string
   phase?: string
   endpoint?: string
+  publicEndpoint?: string
   sftpEndpoint?: string
   sftpUsername?: string
   sftpPassword?: string
@@ -35,6 +36,7 @@ export interface CreateServerRequest {
   maxPlayers?: number
   difficulty?: string
   gamemode?: string
+  publicEndpoint?: string
 }
 
 export function useMinecraftApi() {

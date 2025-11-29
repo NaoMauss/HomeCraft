@@ -125,16 +125,17 @@ func (h *ServerHandler) CreateServer(c *gin.Context) {
 			Namespace: MinecraftNamespace,
 		},
 		Spec: v1alpha1.MinecraftServerSpec{
-			EULA:         req.EULA,
-			SFTPUsername: sftpUsername,
-			SFTPPassword: sftpPassword,
-			Memory:       req.Memory,
-			StorageSize:  req.StorageSize,
-			Version:      req.Version,
-			ServerType:   req.ServerType,
-			MaxPlayers:   req.MaxPlayers,
-			Difficulty:   req.Difficulty,
-			Gamemode:     req.Gamemode,
+			EULA:           req.EULA,
+			SFTPUsername:   sftpUsername,
+			SFTPPassword:   sftpPassword,
+			Memory:         req.Memory,
+			StorageSize:    req.StorageSize,
+			Version:        req.Version,
+			ServerType:     req.ServerType,
+			MaxPlayers:     req.MaxPlayers,
+			Difficulty:     req.Difficulty,
+			Gamemode:       req.Gamemode,
+			PublicEndpoint: req.PublicEndpoint,
 		},
 	}
 
@@ -275,6 +276,12 @@ func (h *ServerHandler) GetClusterResources(c *gin.Context) {
 // Helper functions
 
 func convertToResponse(server *v1alpha1.MinecraftServer) models.ServerResponse {
+	// Use publicEndpoint from status if available, otherwise fall back to spec
+	publicEndpoint := server.Status.PublicEndpoint
+	if publicEndpoint == "" {
+		publicEndpoint = server.Spec.PublicEndpoint
+	}
+
 	return models.ServerResponse{
 		Name:            server.Name,
 		Namespace:       server.Namespace,
@@ -288,6 +295,7 @@ func convertToResponse(server *v1alpha1.MinecraftServer) models.ServerResponse {
 		Gamemode:        server.Spec.Gamemode,
 		Phase:           server.Status.Phase,
 		Endpoint:        server.Status.Endpoint,
+		PublicEndpoint:  publicEndpoint,
 		SFTPEndpoint:    server.Status.SFTPEndpoint,
 		SFTPUsername:    server.Status.SFTPUsername,
 		SFTPPassword:    server.Status.SFTPPassword,

@@ -2,15 +2,16 @@ package models
 
 // CreateServerRequest represents the request to create a new Minecraft server
 type CreateServerRequest struct {
-	Name        string `json:"name" binding:"required"`
-	EULA        bool   `json:"eula"`
-	Memory      string `json:"memory" binding:"required"` // Required: RAM allocation (e.g., "2Gi", "4Gi")
-	StorageSize string `json:"storageSize"`
-	Version     string `json:"version"`
-	ServerType  string `json:"serverType"`
-	MaxPlayers  int    `json:"maxPlayers"`
-	Difficulty  string `json:"difficulty"`
-	Gamemode    string `json:"gamemode"`
+	Name           string `json:"name" binding:"required"`
+	EULA           bool   `json:"eula"`
+	Memory         string `json:"memory" binding:"required"` // Required: RAM allocation (e.g., "2Gi", "4Gi")
+	StorageSize    string `json:"storageSize"`
+	Version        string `json:"version"`
+	ServerType     string `json:"serverType"`
+	MaxPlayers     int    `json:"maxPlayers"`
+	Difficulty     string `json:"difficulty"`
+	Gamemode       string `json:"gamemode"`
+	PublicEndpoint string `json:"publicEndpoint"` // Optional: Public endpoint (e.g., Playit tunnel)
 }
 
 // ServerResponse represents a Minecraft server in API responses
@@ -27,6 +28,7 @@ type ServerResponse struct {
 	Gamemode        string `json:"gamemode"`
 	Phase           string `json:"phase,omitempty"`
 	Endpoint        string `json:"endpoint,omitempty"`
+	PublicEndpoint  string `json:"publicEndpoint,omitempty"`
 	SFTPEndpoint    string `json:"sftpEndpoint,omitempty"`
 	SFTPUsername    string `json:"sftpUsername,omitempty"`
 	SFTPPassword    string `json:"sftpPassword,omitempty"`

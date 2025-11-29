@@ -92,6 +92,9 @@ spec:
                     - creative
                     - adventure
                     - spectator
+                publicEndpoint:
+                  description: 'Public endpoint for external access (e.g., Playit tunnel address)'
+                  type: string
             status:
               description: MinecraftServerStatus defines the observed state of MinecraftServer
               type: object
@@ -100,7 +103,10 @@ spec:
                   description: 'Phase represents the current phase of the server (Pending, Running, Failed)'
                   type: string
                 endpoint:
-                  description: Endpoint is the service endpoint to connect to the server
+                  description: Endpoint is the service endpoint to connect to the server (local/private)
+                  type: string
+                publicEndpoint:
+                  description: 'Public endpoint for external access (e.g., via Playit tunnel)'
                   type: string
                 sftpEndpoint:
                   description: SFTPEndpoint is the SFTP endpoint for file access
